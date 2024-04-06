@@ -1,6 +1,3 @@
-# secure-chat-app-ui
-UI for fullstack secure chat appplication
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
