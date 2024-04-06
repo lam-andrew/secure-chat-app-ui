@@ -1,25 +1,17 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { SidebarProvider } from './components/SidebarContext';
+import Chat from './components/Chat';
+import Sidebar from './components/Sidebar';
 
-function App() {
+const App: React.FC = () => {
+  const [isSidebarOpen] = useState(true);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen p-4 bg-slate-900">
+        <Sidebar />
+        <Chat className={`${isSidebarOpen ? 'md:w-3/4 lg:w-3/4' : 'w-full'}`} />
+      </div>
+    </SidebarProvider>
   );
 }
 
