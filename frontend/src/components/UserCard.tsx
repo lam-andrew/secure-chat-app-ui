@@ -1,5 +1,6 @@
 // UserCard.tsx
 import React from 'react';
+import cat from '../assets/cat.png';
 
 type UserCardProps = {
   username: string;
@@ -9,12 +10,11 @@ type UserCardProps = {
 };
 
 const UserCard: React.FC<UserCardProps> = ({ username, profilePicture, status, description }) => {
-    const defaultImagePath = 'pfp.webp';
-  
+
     return (
       <div className="flex items-center p-2 lg:p-4 bg-slate-700 shadow rounded-lg my-2 lg:my-4 mx-1">
       <img
-        src={profilePicture || defaultImagePath}
+        src={profilePicture || cat}
         alt={`${username}'s profile`}
         className="h-12 w-12 rounded-full object-cover mr-3 bg-white"
       />
