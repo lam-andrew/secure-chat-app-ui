@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import { SidebarProvider } from './components/SidebarContext';
-import Chat from './components/Chat';
-import Sidebar from './components/Sidebar';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import MainPage from './pages/MainPage';
 
 const App: React.FC = () => {
   const [isSidebarOpen] = useState(true);
+
   const responseMessage = (response: any) => {
     console.log(response);
+    // Redirect to the main page upon successful login
+    window.location.href = '/chat';
   };
+
   const errorMessage = (error: any) => {
     console.log(error);
   };
+
   return (
-    <>
-      <GoogleLogin onSuccess={responseMessage} onError={errorMessage as any} />
-      <SidebarProvider>
-        <div className="flex h-screen p-4 bg-slate-900">
-          <Sidebar />
-          <Chat className={`${isSidebarOpen ? 'md:w-3/4 lg:w-3/4' : 'w-full'}`} />
-        </div>
-      </SidebarProvider>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage onSuccess={responseMessage} onError={errorMessage} />} />
+        <Route path="/chat" element={<MainPage isSidebarOpen={isSidebarOpen} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
