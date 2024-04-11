@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import googleIcon from '../assets/google.svg'; // Ensure this path correctly points to your Google SVG icon
-import { FaApple, FaFacebook } from 'react-icons/fa'; // Assuming react-icons is installed
+import googleIcon from '../assets/google.svg';
+import { FaApple, FaFacebook } from 'react-icons/fa';
 
 const LoginPage: React.FC<{ onSuccess: (response: any) => void, onError: (error: any) => void }> = ({ onSuccess, onError }) => {
     const login = useGoogleLogin({

@@ -24,7 +24,6 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
   
-    // Automatically adjust the height
     e.target.style.height = 'inherit';
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
@@ -37,7 +36,7 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
       text: inputText,
       from: 'user',
     };
-    setMessages([...messages, newUserMessage]); // Add the user's message immediately
+    setMessages([...messages, newUserMessage]);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/flask/echo`, { message: inputText });
@@ -53,7 +52,7 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
     } catch (error) {
       console.error('There was an error sending the message', error);
     } finally {
-      setInputText(''); // Clear the input field
+      setInputText('');
     }
 
     if(textAreaRef.current) {
