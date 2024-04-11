@@ -12,7 +12,7 @@ type UserCardProps = {
 const UserCard: React.FC<UserCardProps> = ({ username, profilePicture, status, description }) => {
 
     return (
-      <div className="flex items-center p-2 lg:p-4 bg-slate-700 shadow rounded-lg my-2 lg:my-4 mx-1">
+      <div className="flex items-center p-2 lg:p-4 bg-slate-700 shadow rounded-lg my-2 lg:my-4 mx-2">
       <img
         src={profilePicture || cat}
         alt={`${username}'s profile`}

@@ -35,8 +35,15 @@ const Sidebar = () => {
   return (
     <>
       {!isSidebarOpen && <OpenSidebarButton />}
-      <div className={`transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full md:w-1/2 lg:w-1/4" : "w-0"} lg:pl-1 mr-3 h-full bg-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-slate-800`}>
-        <div className="flex items-center justify-between mt-4">
+      <div className={`rounded transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full md:w-1/2 lg:w-1/4" : "w-0"} mr-3 h-full bg-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-slate-800`}>
+        {/* <div className='text-white text-xl font-medium flex justify-center items-center p-2 ml-2 mt-2'>EkkoChat</div>
+        <hr className="mb-4 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-200" /> */}
+        <div className="flex items-center justify-between mt-4 m-4">
+          <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
+          <a className="text-2xl text-center text-white">EkkoChat</a>
+          <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
+        </div>
+        <div className="flex items-center justify-between ml-1 mt-6">
           <input
             className='flex items-center p-2 mx-1 text-white bg-slate-900 shadow rounded-lg w-11/12 outline-none'
             type="search"
@@ -49,14 +56,9 @@ const Sidebar = () => {
         {isSidebarOpen && (
           <>
             <UserCard username='Andrew Lam' profilePicture='' status='active' description='FrontEnd & Deployment' />
-            <UserCard username='Tyler Hipolito' profilePicture='' status='offline' description='Security & Encryption' />
+            <UserCard username='Tyler Hipolito' profilePicture='' status='active' description='Security & Encryption' />
             <UserCard username='Allen Chiang' profilePicture='' status='active' description='Client & Server' />
-            <UserCard username='Michael Tran' profilePicture='' status='offline' description='Database Schema Design' />
-            <UserCard username='Danny Nguyen' profilePicture='' status='active' description='Client & Server' />
-            <UserCard username='Andrew Lam' profilePicture='' status='active' description='FrontEnd & Deployment' />
-            <UserCard username='Tyler Hipolito' profilePicture='' status='offline' description='Security & Encryption' />
-            <UserCard username='Allen Chiang' profilePicture='' status='active' description='Client & Server' />
-            <UserCard username='Michael Tran' profilePicture='' status='offline' description='Database Schema Design' />
+            <UserCard username='Michael Tran' profilePicture='' status='active' description='Database Schema Design' />
             <UserCard username='Danny Nguyen' profilePicture='' status='active' description='Client & Server' />
           </>
         )}
