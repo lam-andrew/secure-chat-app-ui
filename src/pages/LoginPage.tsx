@@ -1,18 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import googleIcon from '../assets/google.svg';
 import { FaApple, FaFacebook } from 'react-icons/fa';
+import { useUser } from '../context/UserContext';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage: React.FC<{ onSuccess: (response: any) => void, onError: (error: any) => void }> = ({ onSuccess, onError }) => {
+interface TokenResponse {
+    access_token: string;
+}
+
+const LoginPage: React.FC = () => {
+    const { setUser } = useUser();
+    const [tempUser, setTempUser] = useState<TokenResponse | null>(null);
+    const navigate = useNavigate();
+
     const login = useGoogleLogin({
-        onSuccess: (codeResponse) => onSuccess(codeResponse),
-        onError: (error) => onError(error),
+        onSuccess: async (codeResponse) => setTempUser(codeResponse),
+        onError: (error) => console.log('Login Failed:', error),
     });
+
+    useEffect(
+        () => {
+            if (tempUser) {
+                axios
+                    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tempUser.access_token}`, {
+                        headers: {
+                            Authorization: `Bearer ${tempUser.access_token}`,
+                            Accept: 'application/json'
+                        }
+                    })
+                    .then((res) => {
+                        setUser(res.data);
+                        navigate("/chat");
+                    })
+                    .catch((err) => console.log(err));
+            }
+        },
+        [tempUser]
+    );
 
     return (
         <div className="flex justify-center items-center h-screen w-full bg-slate-50">
             <div className='bg-slate-100 shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4 max-w-md w-full'>
-                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log Into Ekko</h1>
+                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log Into NextStep Tracking</h1>
                 <div className="space-y-6">
                     <div>
                         <label htmlFor="email" className="text-sm font-medium text-slate-700 block mb-2">Email Address</label>
@@ -27,7 +58,7 @@ const LoginPage: React.FC<{ onSuccess: (response: any) => void, onError: (error:
                             disabled />
                     </div>
                     <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                            disabled
+                        disabled
                     >
                         Log in
                     </button>
