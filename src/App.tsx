@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 
@@ -17,12 +17,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<LoginPage onSuccess={responseMessage} onError={errorMessage} />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/chat" element={<MainPage isSidebarOpen={isSidebarOpen} />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

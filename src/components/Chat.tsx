@@ -68,7 +68,7 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
   };
 
   return (
-    <div className={`flex flex-col h-full ${isSidebarOpen ? 'lg:w-3/4 md:w-3/4 sm:w-full' : 'w-full'} `}>
+    <div className={`flex flex-col ${isSidebarOpen ? 'lg:w-3/4 md:w-3/4 sm:w-full' : 'w-full'}`}>
       <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900">
         {messages.slice().reverse().map((message, index) => (
           <div
@@ -92,7 +92,7 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
             rows={1}
             style={{ maxHeight: '150px' }}
           />
-          <button onClick={handleSendMessage} className="bg-[#6d84f7] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
+          <button onClick={handleSendMessage} className="bg-[#6d84f7] hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded ml-2">
             Send
           </button>
         </div>
