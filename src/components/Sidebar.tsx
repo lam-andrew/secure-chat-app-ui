@@ -35,7 +35,7 @@ const Sidebar = () => {
   return (
     <>
       {!isSidebarOpen && <OpenSidebarButton />}
-      <div className={`mt-16 rounded transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full md:w-1/2 lg:w-1/4" : "w-0"} mr-3 bg-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-slate-800`}>
+      <div className={`mt-16 rounded transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full md:w-1/2 lg:w-1/6" : "w-0"} mr-3 bg-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-slate-800`}>
         <div className="flex items-center justify-between ml-1 mt-4">
           <input
             className='flex items-center p-2 mx-1 text-white bg-slate-900 shadow rounded-lg w-11/12 outline-none'
