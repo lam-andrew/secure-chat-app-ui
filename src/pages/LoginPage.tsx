@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex justify-center items-center h-screen w-full bg-slate-50">
             <div className='bg-slate-100 shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4 max-w-md w-full'>
-                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log Into NextStep Tracking</h1>
+                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log Into Ekko</h1>
                 <div className="space-y-6">
                     <div>
                         <label htmlFor="email" className="text-sm font-medium text-slate-700 block mb-2">Email Address</label>
