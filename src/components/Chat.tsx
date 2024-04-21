@@ -1,13 +1,19 @@
-// Chat.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { io, Socket } from 'socket.io-client';
 import { useSidebar } from './SidebarContext';
 
 type Message = {
   id: number;
+  socketId?: string;
   text: string;
   from: 'user' | 'api';
 };
+
+type MessageData = {
+  data: string;
+  sid: string;
+}
 
 type ChatProps = {
   className: string;
@@ -16,66 +22,86 @@ type ChatProps = {
 const Chat: React.FC<ChatProps> = ({ className }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const messagesEndRef = useRef<null | HTMLDivElement>(null);  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
+  const [socket, setSocket] = useState<Socket | null>(null);
   const { isSidebarOpen } = useSidebar();
+
+  useEffect(() => {
+    const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}`, {
+      transports: ['websocket'],
+    });
+
+    newSocket.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Socket disconnected');
+    });
+
+    newSocket.on('data', (data: MessageData) => {
+      // Handle incoming messages from the server
+      const newMessage: Message = {
+        id: messages.length,
+        socketId: data.sid,
+        text: data.data,
+        from: 'api',
+      };
+      console.log("MESSAGE: ", newMessage)
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
-  
     e.target.style.height = 'inherit';
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
   const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
-    
-    const newUserMessage: Message = {
-      id: messages.length,
-      text: inputText,
-      from: 'user',
-    };
-    setMessages([...messages, newUserMessage]);
-
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/flask/echo`, { message: inputText });
-      //const echoedMessage = response.data.response; // Adjust based on your actual API response structure
-      const echoedMessage = response.data.decrypted;
-      
-      const newApiMessage: Message = {
-        id: messages.length + 1,
-        text: echoedMessage,
-        from: 'api',
-      };
-      setMessages((msgs) => [...msgs, newApiMessage]); // Only add the API's response here
-    } catch (error) {
-      console.error('There was an error sending the message', error);
-    } finally {
-      setInputText('');
+    if (!inputText.trim() || !socket) return;
+    setInputText('');
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "inherit";
     }
-
-    if(textAreaRef.current) {
-      textAreaRef.current.style.height = "40px";
-    }
+    socket.emit('data', inputText);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevent new line from being entered in the textarea
+      e.preventDefault();
       handleSendMessage();
     }
   };
 
+  useEffect(() => {
+    const scrollContainer = messagesEndRef.current?.parentNode as HTMLElement;
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0; // For flex-col-reverse, this scrolls to the visual bottom
+    }
+  }, [messages]);
+
   return (
     <div className={`mt-16 flex flex-col ${isSidebarOpen ? 'lg:w-5/6 md:w-3/4 sm:w-full' : 'w-full'}`}>
-      <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900">
+      <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900 scroll-smooth">
         {messages.slice().reverse().map((message, index) => (
           <div
             key={index}
-            className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'user' ? 'bg-[#6d84f7] text-white ml-auto' : 'bg-slate-700 text-white mr-auto'}`}
+            className={`flex flex-col rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words text-white ${message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto'}`}
           >
-            {message.text}
+            <span className="break-words">{message.text}</span>
+            <span className={`text-xs mt-2 text-white opacity-75 ${message.socketId === socket?.id ? 'self-end' : ''}`}>
+              ID: {message.socketId}
+            </span>
           </div>
         ))}
         <div ref={messagesEndRef} />
