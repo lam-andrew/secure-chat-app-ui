@@ -1,18 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { useSidebar } from './SidebarContext';
+import { useUser } from '../context/UserContext';
+import cat from '../assets/cat.png';
 
 type Message = {
   id: number;
   socketId?: string;
   text: string;
-  from: 'user' | 'api';
+  from: 'user' | 'api' | 'system';
+  username?: string;      // Username of the sender
+  profilePicUrl?: string; // URL of the sender's profile picture
 };
+
+type SystemMessage = Omit<Message, 'username' | 'profilePicUrl'>;
 
 type MessageData = {
   data: string;
   sid: string;
+  username: string;
+  profilePicUrl: string;
 }
 
 type ChatProps = {
@@ -26,6 +33,30 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const { isSidebarOpen } = useSidebar();
+  const { user } = useUser();
+
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || !socket || !user) return;
+    setInputText('');
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "inherit";
+    }
+    const messageData = {
+      text: inputText,
+      username: user.name,
+      profilePicUrl: user.picture,
+    };
+    socket.emit('data', messageData);
+  };
+
+  const addSystemMessage = (text: string): void => {
+    const systemMessage: SystemMessage = {
+      id: messages.length,
+      text: text,
+      from: 'system'
+    };
+    setMessages(prevMessages => [...prevMessages, systemMessage]);
+  };
 
   useEffect(() => {
     const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}`, {
@@ -34,10 +65,26 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
 
     newSocket.on('connect', () => {
       console.log('Socket connected');
+      if (user) {
+        newSocket.emit('register', {
+          username: user.name,
+          profilePicUrl: user.picture
+        });
+      }
     });
 
     newSocket.on('disconnect', () => {
       console.log('Socket disconnected');
+    });
+
+    newSocket.on('userConnected', (data) => {
+      console.log('User Connected:', data.username);
+      addSystemMessage(`${data.username} has joined the chat`);
+    });
+
+    newSocket.on('userDisconnected', (data) => {
+      console.log('User Disconnected:', data.username);
+      addSystemMessage(`${data.username} has left the chat`);
     });
 
     newSocket.on('data', (data: MessageData) => {
@@ -47,6 +94,8 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
         socketId: data.sid,
         text: data.data,
         from: 'api',
+        username: data.username,    // Assuming these fields are included in the data from the socket
+        profilePicUrl: data.profilePicUrl,
       };
       console.log("MESSAGE: ", newMessage)
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -65,15 +114,6 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
     setInputText(e.target.value);
     e.target.style.height = 'inherit';
     e.target.style.height = `${e.target.scrollHeight}px`;
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputText.trim() || !socket) return;
-    setInputText('');
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "inherit";
-    }
-    socket.emit('data', inputText);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -95,14 +135,22 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
       <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900 scroll-smooth">
         {messages.slice().reverse().map((message, index) => (
           <div
-            key={index}
-            className={`flex flex-col rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words text-white ${message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto'}`}
-          >
-            <span className="break-words">{message.text}</span>
-            <span className={`text-xs mt-2 text-white opacity-75 ${message.socketId === socket?.id ? 'self-end' : ''}`}>
-              ID: {message.socketId}
-            </span>
-          </div>
+          key={index}
+          className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
+          style={{ width: message.from === 'system' ? '100%' : undefined }}
+        >
+          <span className={`break-words ${message.from === 'system' ? 'flex justify-center' : ''}`}>{message.text}</span>
+          {message.from !== 'system' && 'username' in message && (
+            <div className="flex items-center mt-2">
+              <img
+                src={message.profilePicUrl || cat}
+                alt="profile"
+                className="w-6 h-6 rounded-full mr-2"
+              />
+              <span className="text-xs text-white opacity-80">{message.username}</span>
+            </div>
+          )}
+        </div>
         ))}
         <div ref={messagesEndRef} />
       </div>

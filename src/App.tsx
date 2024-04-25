@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
-import SocketTest from './pages/SocketTest';
 
 const App: React.FC = () => {
   const [isSidebarOpen] = useState(true);
@@ -22,7 +21,6 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/chat" element={<MainPage isSidebarOpen={isSidebarOpen} />} />
-        <Route path="/socket_test" element={<SocketTest/>} />
       </Routes>
     </Router>
   );
