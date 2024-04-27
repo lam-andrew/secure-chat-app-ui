@@ -1,11 +1,59 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import UserCard from './UserCard';
 import { useSidebar } from './SidebarContext';
 import backArrow from '../assets/arrow_back.svg';
 import frontArrow from '../assets/arrow_forward.svg';
+import { Socket } from 'socket.io-client';
+import { useUser } from '../context/UserContext';
+import { UserProfile } from '../types/UserProfile';
 
-const Sidebar = () => {
+type SidebarProps = {
+  socket?: Socket;
+  users?: UserProfile[];
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    // Handle user connected event
+    socket.on('userConnected', (data) => {
+      console.log('User Connected:', data.username);
+      // Assuming username is received from the event
+      setUsers((prevUsers) => [
+        ...prevUsers,
+        {
+          id: user.id,
+          username: user.name,
+          email: user.email,
+          verified_email: user.verified_email,
+          name: user.name,
+          given_name: user.given_name,
+          family_name: user.family_name,
+          picture: user.picture,
+          locale: user.locale,
+        },
+      ]);
+    });
+
+    // Handle user disconnected event
+    socket.on('userDisconnected', (data) => {
+      console.log('User Disconnected:', data.username);
+      setUsers((prevUsers) => prevUsers.filter((user) => user.name !== data.username));
+    });
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        socket.off('userConnected');
+      }
+    };
+  }, [socket, user]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,15 +94,9 @@ const Sidebar = () => {
             <img src={backArrow} className='text-white' alt="Close" />
           </button>
         </div>
-        {isSidebarOpen && (
-          <>
-            <UserCard username='Andrew Lam' profilePicture='' status='active' description='FrontEnd & Deployment' />
-            <UserCard username='Tyler Hipolito' profilePicture='' status='active' description='Security & Encryption' />
-            <UserCard username='Allen Chiang' profilePicture='' status='active' description='Client & Server' />
-            <UserCard username='Michael Tran' profilePicture='' status='active' description='Database Schema Design' />
-            <UserCard username='Danny Nguyen' profilePicture='' status='active' description='Client & Server' />
-          </>
-        )}
+        {isSidebarOpen && users.map((user) => (
+          <UserCard key={user.name} username={user.name} profilePicture={user.picture} />
+        ))}
       </div>
     </>
   );

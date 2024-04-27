@@ -5,8 +5,8 @@ import cat from '../assets/cat.png';
 type UserCardProps = {
   username: string;
   profilePicture: string;
-  status: 'active' | 'offline';
-  description: string;
+  status?: 'active' | 'offline';
+  description?: string;
 };
 
 const UserCard: React.FC<UserCardProps> = ({ username, profilePicture, status, description }) => {
@@ -20,9 +20,9 @@ const UserCard: React.FC<UserCardProps> = ({ username, profilePicture, status, d
       />
       <div className="flex flex-col">
         <span className="font-bold text-white">{username}</span>
-        <span className={`text-sm ${status === 'active' ? 'text-green-500' : 'text-gray-400'}`}>
+        {status && <span className={`text-sm ${status === 'active' ? 'text-green-500' : 'text-gray-400'}`}>
           {status.charAt(0).toUpperCase() + status.slice(1)}
-        </span>
+        </span>}
         <span className="text-slate-300 text-xs">{description}</span>
       </div>
     </div>

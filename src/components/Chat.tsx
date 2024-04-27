@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { useSidebar } from './SidebarContext';
 import { useUser } from '../context/UserContext';
 import cat from '../assets/cat.png';
+import { Socket } from 'socket.io-client';
 
 type Message = {
   id: number;
@@ -24,14 +24,14 @@ type MessageData = {
 
 type ChatProps = {
   className: string;
+  socket?: Socket;
 };
 
-const Chat: React.FC<ChatProps> = ({ className }) => {
+const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const { isSidebarOpen } = useSidebar();
   const { user } = useUser();
 
@@ -59,35 +59,20 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
   };
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}`, {
-      transports: ['websocket'],
-    });
+    if (!socket) return;
 
-    newSocket.on('connect', () => {
-      console.log('Socket connected');
-      if (user) {
-        newSocket.emit('register', {
-          username: user.name,
-          profilePicUrl: user.picture
-        });
-      }
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('Socket disconnected');
-    });
-
-    newSocket.on('userConnected', (data) => {
+    // Use the provided socket instance
+    socket.on('userConnected', (data) => {
       console.log('User Connected:', data.username);
       addSystemMessage(`${data.username} has joined the chat`);
     });
 
-    newSocket.on('userDisconnected', (data) => {
+    socket.on('userDisconnected', (data) => {
       console.log('User Disconnected:', data.username);
       addSystemMessage(`${data.username} has left the chat`);
     });
 
-    newSocket.on('data', (data: MessageData) => {
+    socket.on('data', (data: MessageData) => {
       // Handle incoming messages from the server
       const newMessage: Message = {
         id: messages.length,
@@ -101,14 +86,13 @@ const Chat: React.FC<ChatProps> = ({ className }) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
-    setSocket(newSocket);
-
     return () => {
-      if (newSocket) {
-        newSocket.disconnect();
+      if (socket) {
+        socket.disconnect();
+        socket.off('userConnected'); 
       }
     };
-  }, []);
+  }, [socket]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
