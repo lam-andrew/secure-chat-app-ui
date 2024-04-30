@@ -5,16 +5,16 @@ import backArrow from '../assets/arrow_back.svg';
 import frontArrow from '../assets/arrow_forward.svg';
 import { Socket } from 'socket.io-client';
 import { useUser } from '../context/UserContext';
-import { UserProfile } from '../types/UserProfile';
+import { UserCardProfile } from '../types/UserCardProfile';
 
 type SidebarProps = {
   socket?: Socket;
-  users?: UserProfile[];
+  users?: UserCardProfile[];
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [users, setUsers] = useState<UserCardProfile[]>([]);
   const { user } = useUser();
 
   useEffect(() => {
@@ -22,20 +22,13 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
 
     // Handle user connected event
     socket.on('userConnected', (data) => {
-      console.log('User Connected:', data.username);
+      console.log('User Connected:', data);
       // Assuming username is received from the event
       setUsers((prevUsers) => [
         ...prevUsers,
         {
-          id: user.id,
-          username: user.name,
-          email: user.email,
-          verified_email: user.verified_email,
-          name: user.name,
-          given_name: user.given_name,
-          family_name: user.family_name,
-          picture: user.picture,
-          locale: user.locale,
+          name: data.username,
+          picture: data.profilePicUrl,
         },
       ]);
     });
@@ -52,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
         socket.off('userConnected');
       }
     };
-  }, [socket, user]);
+  }, [socket]);
 
 
   useEffect(() => {
@@ -94,8 +87,8 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
             <img src={backArrow} className='text-white' alt="Close" />
           </button>
         </div>
-        {isSidebarOpen && users.map((user) => (
-          <UserCard key={user.name} username={user.name} profilePicture={user.picture} />
+        {isSidebarOpen && users.map((curr_user) => (
+          <UserCard key={curr_user.name} username={curr_user.name} profilePicture={curr_user.picture} status='active' />
         ))}
       </div>
     </>
