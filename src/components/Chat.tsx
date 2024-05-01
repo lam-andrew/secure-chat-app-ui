@@ -3,14 +3,15 @@ import { useSidebar } from './SidebarContext';
 import { useUser } from '../context/UserContext';
 import cat from '../assets/cat.png';
 import { Socket } from 'socket.io-client';
+import CryptoJS from 'crypto-js';
 
 type Message = {
   id: number;
   socketId?: string;
   text: string;
   from: 'user' | 'api' | 'system';
-  username?: string;      // Username of the sender
-  profilePicUrl?: string; // URL of the sender's profile picture
+  username?: string;
+  profilePicUrl?: string;
 };
 
 type SystemMessage = Omit<Message, 'username' | 'profilePicUrl'>;
@@ -35,18 +36,38 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   const { isSidebarOpen } = useSidebar();
   const { user } = useUser();
 
+  const secretKey = process.env.REACT_APP_SECRET_KEY;
+
+  const encryptMessage = (text: string) => {
+    if (!secretKey) {
+      console.error("Secret key is not set.");
+      return '';
+    }
+    return CryptoJS.AES.encrypt(text, secretKey).toString();
+  };
+
+  const decryptMessage = (cipherText: string) => {
+    if (!secretKey) {
+      console.error("Secret key is not set.");
+      return '';
+    }
+    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  };
+
   const handleSendMessage = async () => {
     if (!inputText.trim() || !socket || !user) return;
-    setInputText('');
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "inherit";
-    }
+    const encryptedMessage = encryptMessage(inputText);
     const messageData = {
-      text: inputText,
+      text: encryptedMessage,
       username: user.name,
       profilePicUrl: user.picture,
     };
     socket.emit('data', messageData);
+    setInputText('');
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "inherit";
+    }
   };
 
   const addSystemMessage = (text: string): void => {
@@ -61,7 +82,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   useEffect(() => {
     if (!socket) return;
 
-    // Use the provided socket instance
     socket.on('userConnected', (data) => {
       console.log('User Connected:', data.username);
       addSystemMessage(`${data.username} has joined the chat`);
@@ -73,13 +93,13 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     });
 
     socket.on('data', (data: MessageData) => {
-      // Handle incoming messages from the server
+      const decryptedText = decryptMessage(data.data);
       const newMessage: Message = {
         id: messages.length,
         socketId: data.sid,
-        text: data.data,
+        text: decryptedText,
         from: 'api',
-        username: data.username,    // Assuming these fields are included in the data from the socket
+        username: data.username,
         profilePicUrl: data.profilePicUrl,
       };
       console.log("MESSAGE: ", newMessage)
@@ -89,7 +109,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     return () => {
       if (socket) {
         socket.disconnect();
-        socket.off('userConnected'); 
+        socket.off('userConnected');
       }
     };
   }, [socket]);
@@ -157,6 +177,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
       </div>
     </div>
   );
-};
+}
 
 export default Chat;
