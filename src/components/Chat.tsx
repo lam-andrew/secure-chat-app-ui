@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import cat from '../assets/cat.png';
 import { Socket } from 'socket.io-client';
 import CryptoJS from 'crypto-js';
+import axios from 'axios';
 
 type Message = {
   id: number;
@@ -35,6 +36,26 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { isSidebarOpen } = useSidebar();
   const { user } = useUser();
+
+  useEffect(() => {
+    // Function to fetch message data from the server
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/messages`);
+        const encryptedData = response.data; // Axios automatically parses the JSON response into an object
+        // Decrypt each message's text before updating the state
+        const decryptedMessages = encryptedData.map((message: any) => ({
+          ...message,
+          text: decryptMessage(message.text)
+        }));
+        setMessages(decryptedMessages);
+      } catch (error) {
+        console.error('Failed to fetch messages', error);
+      }
+    };
+
+    fetchMessages();
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   const secretKey = process.env.REACT_APP_SECRET_KEY;
 
@@ -139,22 +160,22 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
       <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900 scroll-smooth">
         {messages.slice().reverse().map((message, index) => (
           <div
-          key={index}
-          className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
-          style={{ width: message.from === 'system' ? '100%' : undefined }}
-        >
-          <span className={`break-words ${message.from === 'system' ? 'flex justify-center' : ''}`}>{message.text}</span>
-          {message.from !== 'system' && 'username' in message && (
-            <div className="flex items-center mt-2">
-              <img
-                src={message.profilePicUrl || cat}
-                alt="profile"
-                className="w-6 h-6 rounded-full mr-2"
-              />
-              <span className="text-xs text-white opacity-80">{message.username}</span>
-            </div>
-          )}
-        </div>
+            key={index}
+            className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
+            style={{ width: message.from === 'system' ? '100%' : undefined }}
+          >
+            <span className={`break-words ${message.from === 'system' ? 'flex justify-center' : ''}`}>{message.text}</span>
+            {message.from !== 'system' && 'username' in message && (
+              <div className="flex items-center mt-2">
+                <img
+                  src={message.profilePicUrl || cat}
+                  alt="profile"
+                  className="w-6 h-6 rounded-full mr-2"
+                />
+                <span className="text-xs text-white opacity-80">{message.username}</span>
+              </div>
+            )}
+          </div>
         ))}
         <div ref={messagesEndRef} />
       </div>

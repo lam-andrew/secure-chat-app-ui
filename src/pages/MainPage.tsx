@@ -18,13 +18,6 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
     newSocket.on('connect', () => {
       console.log('Socket connected');
       setSocket(newSocket);
-
-      if (user) {
-        newSocket.emit('register', {
-          username: user.name,
-          profilePicUrl: user.picture
-        });
-      }
     });
 
     newSocket.on('disconnect', () => {

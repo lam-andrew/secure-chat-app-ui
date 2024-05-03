@@ -6,6 +6,7 @@ import frontArrow from '../assets/arrow_forward.svg';
 import { Socket } from 'socket.io-client';
 import { useUser } from '../context/UserContext';
 import { UserCardProfile } from '../types/UserCardProfile';
+import axios from 'axios';
 
 type SidebarProps = {
   socket?: Socket;
@@ -18,7 +19,34 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
   const { user } = useUser();
 
   useEffect(() => {
+    // Function to fetch user data from the server
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users`);
+        const data = response.data; // Axios automatically handles the JSON parsing
+        // Transform the data into the format expected by the UserCardProfile
+        const userProfiles = data.map((user: any) => ({
+          name: user.username,
+          picture: user.profilePicUrl
+        }));
+        setUsers(userProfiles);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+      }
+    };
+  
+    fetchUsers();
+  }, []); // Empty dependency array means this effect runs only once after the initial render
+
+  useEffect(() => {
     if (!socket || !user) return;
+
+    if (user) {
+      socket?.emit('register', {
+        username: user.name,
+        profilePicUrl: user.picture
+      });
+    }
 
     // Handle user connected event
     socket.on('userConnected', (data) => {
