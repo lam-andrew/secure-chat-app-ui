@@ -43,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
 
     if (user) {
       socket?.emit('register', {
+        googleId: user.id,
         username: user.name,
         profilePicUrl: user.picture
       });

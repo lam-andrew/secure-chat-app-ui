@@ -11,15 +11,17 @@ type Message = {
   socketId?: string;
   text: string;
   from: 'user' | 'api' | 'system';
+  googleId?: string;
   username?: string;
   profilePicUrl?: string;
 };
 
-type SystemMessage = Omit<Message, 'username' | 'profilePicUrl'>;
+type SystemMessage = Omit<Message, 'googleId' | 'username' | 'profilePicUrl'>;
 
 type MessageData = {
   data: string;
   sid: string;
+  googleId: string;
   username: string;
   profilePicUrl: string;
 }
@@ -81,6 +83,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     const encryptedMessage = encryptMessage(inputText);
     const messageData = {
       text: encryptedMessage,
+      googleId: user.id,
       username: user.name,
       profilePicUrl: user.picture,
     };
@@ -120,6 +123,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
         socketId: data.sid,
         text: decryptedText,
         from: 'api',
+        googleId: data.googleId,
         username: data.username,
         profilePicUrl: data.profilePicUrl,
       };
@@ -161,7 +165,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
         {messages.slice().reverse().map((message, index) => (
           <div
             key={index}
-            className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.socketId === socket?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
+            className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.googleId === user?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
             style={{ width: message.from === 'system' ? '100%' : undefined }}
           >
             <span className={`break-words ${message.from === 'system' ? 'flex justify-center' : ''}`}>{message.text}</span>
