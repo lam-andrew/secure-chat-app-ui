@@ -25,10 +25,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(userData);
     };
 
-    useEffect(() => {
-        console.log("User state updated to: ", user);
-    }, [user]);
-
     const logout = useCallback(() => {
         localStorage.removeItem('user');
         googleLogout();
