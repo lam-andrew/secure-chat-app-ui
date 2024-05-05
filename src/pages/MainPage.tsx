@@ -9,9 +9,10 @@ import { useUser } from '../context/UserContext';
 const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const { user } = useUser();
+  console.log(`SOCKET URL: ${process.env.REACT_APP_SOCKET_SERVER_URL}`)
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_API_BASE_URL}`, {
+    const newSocket = io(`${process.env.REACT_APP_SOCKET_SERVER_URL}`, {
       transports: ['websocket'],
     });
 
