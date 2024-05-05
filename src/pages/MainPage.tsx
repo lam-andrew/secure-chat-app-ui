@@ -9,7 +9,6 @@ import { useUser } from '../context/UserContext';
 const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const { user } = useUser();
-  console.log(`SOCKET URL: ${process.env.REACT_APP_SOCKET_SERVER_URL}`)
 
   useEffect(() => {
     const newSocket = io(`${process.env.REACT_APP_SOCKET_SERVER_URL}`, {
@@ -17,12 +16,10 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
     });
 
     newSocket.on('connect', () => {
-      console.log('Socket connected');
       setSocket(newSocket);
     });
 
     newSocket.on('disconnect', () => {
-      console.log('Socket disconnected');
       setSocket(undefined);
     });
 

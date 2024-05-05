@@ -6,16 +6,6 @@ import MainPage from './pages/MainPage';
 const App: React.FC = () => {
   const [isSidebarOpen] = useState(true);
 
-  const responseMessage = (response: any) => {
-    console.log(response);
-    // Redirect to the main page upon successful login
-    window.location.href = '/chat';
-  };
-
-  const errorMessage = (error: any) => {
-    console.log(error);
-  };
-
   return (
     <Router>
       <Routes>

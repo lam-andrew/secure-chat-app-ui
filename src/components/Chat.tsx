@@ -107,12 +107,10 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (!socket) return;
 
     socket.on('userConnected', (data) => {
-      console.log('User Connected:', data.username);
       addSystemMessage(`${data.username} has joined the chat`);
     });
 
     socket.on('userDisconnected', (data) => {
-      console.log('User Disconnected:', data.username);
       addSystemMessage(`${data.username} has left the chat`);
     });
 
@@ -127,7 +125,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
         username: data.username,
         profilePicUrl: data.profilePicUrl,
       };
-      console.log("MESSAGE: ", newMessage)
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 

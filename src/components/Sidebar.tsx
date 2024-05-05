@@ -51,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
 
     // Handle user connected event
     socket.on('userConnected', (data) => {
-      console.log('User Connected:', data);
       // Assuming username is received from the event
       setUsers((prevUsers) => [
         ...prevUsers,
@@ -64,7 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
 
     // Handle user disconnected event
     socket.on('userDisconnected', (data) => {
-      console.log('User Disconnected:', data.username);
       setUsers((prevUsers) => prevUsers.filter((user) => user.name !== data.username));
     });
 
