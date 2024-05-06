@@ -111,7 +111,9 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (!socket) return;
 
     socket.on('userConnected', (data) => {
-      addSystemMessage(`${data.username} has joined the chat`);
+      if(data.username === user?.name) {
+        addSystemMessage(`${data.username} has joined the chat`);
+      }
     });
 
     socket.on('userDisconnected', (data) => {
@@ -158,7 +160,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (scrollContainer) {
       scrollContainer.scrollTop = 0; // For flex-col-reverse, this scrolls to the visual bottom
     }
-    console.log("ALL MESSAGES: ", messages)
   }, [messages]);
 
   return (
