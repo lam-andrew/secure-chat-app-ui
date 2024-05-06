@@ -10,13 +10,11 @@ type Message = {
   id: number;
   socketId?: string;
   text: string;
-  from: 'user' | 'api' | 'system';
+  from: 'user' | 'system';
   googleId?: string;
   username?: string;
   profilePicUrl?: string;
 };
-
-type SystemMessage = Omit<Message, 'googleId' | 'username' | 'profilePicUrl'>;
 
 type MessageData = {
   data: string;
@@ -24,6 +22,7 @@ type MessageData = {
   googleId: string;
   username: string;
   profilePicUrl: string;
+  from: 'user' | 'system';
 }
 
 type ChatProps = {
@@ -86,6 +85,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
       googleId: user.id,
       username: user.name,
       profilePicUrl: user.picture,
+      from: 'user'
     };
     socket.emit('data', messageData);
     setInputText('');
@@ -95,12 +95,16 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   };
 
   const addSystemMessage = (text: string): void => {
-    const systemMessage: SystemMessage = {
-      id: messages.length,
-      text: text,
+    if (!socket || !user) return;
+    const encryptedMessage = encryptMessage(text);
+    const systemMessage = {
+      text: encryptedMessage,
+      googleId: messages.length,    // Useless to systemMessage but a required param
+      username: user.name,          // Useless to systemMessage but a required param
+      profilePicUrl: user.picture,  // Useless to systemMessage but a required param
       from: 'system'
     };
-    setMessages(prevMessages => [...prevMessages, systemMessage]);
+    socket.emit('data', systemMessage);
   };
 
   useEffect(() => {
@@ -120,7 +124,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
         id: messages.length,
         socketId: data.sid,
         text: decryptedText,
-        from: 'api',
+        from: data.from,
         googleId: data.googleId,
         username: data.username,
         profilePicUrl: data.profilePicUrl,
@@ -154,6 +158,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (scrollContainer) {
       scrollContainer.scrollTop = 0; // For flex-col-reverse, this scrolls to the visual bottom
     }
+    console.log("ALL MESSAGES: ", messages)
   }, [messages]);
 
   return (
