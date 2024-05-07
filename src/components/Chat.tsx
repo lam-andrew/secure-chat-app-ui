@@ -111,7 +111,9 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (!socket) return;
 
     socket.on('userConnected', (data) => {
-      if(data.username === user?.name) {
+      console.log(data.googleId)
+      console.log(user?.id)
+      if(data.googleId === user?.id) {
         addSystemMessage(`${data.username} has joined the chat`);
       }
     });
