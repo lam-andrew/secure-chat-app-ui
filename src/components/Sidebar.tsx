@@ -57,13 +57,14 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
         {
           name: data.username,
           picture: data.profilePicUrl,
+          googleId: data.googleId,
         },
       ]);
     });
 
     // Handle user disconnected event
     socket.on('userDisconnected', (data) => {
-      setUsers((prevUsers) => prevUsers.filter((user) => user.name !== data.username));
+      setUsers((prevUsers) => prevUsers.filter((user) => user.googleId !== data.googleId));
     });
 
     return () => {
