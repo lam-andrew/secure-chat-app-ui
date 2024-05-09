@@ -5,18 +5,20 @@ import { UserProfile } from "./types/UserProfile";
 
 const secretKey = process.env.REACT_APP_SECRET_KEY;
 
-export const addSystemMessage = (text: string, socket: Socket, user: UserProfile): void => {
-  if (!socket || !user) return;
-  const encryptedMessage = encryptMessage(text);
-  const systemMessage = {
-    text: encryptedMessage,
-    googleId: 0,    // Useless to systemMessage but a required param
-    username: user.name,          // Useless to systemMessage but a required param
-    profilePicUrl: user.picture,  // Useless to systemMessage but a required param
-    from: 'system',
-    timestamp: Date.now()
-  };
-  socket.emit('data', systemMessage);
+export const addSystemMessage = (text: string, socket: Socket, user: UserProfile): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (!socket || !user) return;
+    const encryptedMessage = encryptMessage(text);
+    const systemMessage = {
+      text: encryptedMessage,
+      googleId: 0,    // Useless to systemMessage but a required param
+      username: user.name,          // Useless to systemMessage but a required param
+      profilePicUrl: user.picture,  // Useless to systemMessage but a required param
+      from: 'system',
+      timestamp: Date.now()
+    };
+    socket.emit('data', systemMessage);
+  });
 };
 
 export const encryptMessage = (text: string) => {

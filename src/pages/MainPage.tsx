@@ -34,8 +34,17 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (socket && user) {
-        addSystemMessage(`${user?.name} has left the chat`, socket, user);
-        logout();
+        // Ensure addSystemMessage returns a Promise
+        addSystemMessage(`${user?.name} has left the chat`, socket, user)
+          .then(() => {
+            // This will execute after addSystemMessage is resolved
+            logout();
+          })
+          .catch((error) => {
+            console.error("Failed to add system message:", error);
+            // Optionally logout even if addSystemMessage fails
+            logout();
+          });
       }
     };
 

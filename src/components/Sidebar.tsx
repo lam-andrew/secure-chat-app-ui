@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
           </button>
         </div>
         {isSidebarOpen && users.map((curr_user) => (
-          <UserCard key={curr_user.name} username={curr_user.name} profilePicture={curr_user.picture} status='active' />
+          <UserCard key={curr_user.googleId} username={curr_user.name} profilePicture={curr_user.picture} status='active' />
         ))}
       </div>
     </>
