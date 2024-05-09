@@ -5,11 +5,10 @@ import Chat from '../components/Chat';
 import Sidebar from '../components/Sidebar';
 import ProfileTopBar from '../components/ProfileTopBar';
 import { useUser } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { addSystemMessage } from '../utils';
 
 const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
-  const navigate = useNavigate();
   const { user, logout } = useUser();
 
   useEffect(() => {
@@ -34,7 +33,8 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (socket) {
+      if (socket && user) {
+        addSystemMessage(`${user?.name} has left the chat`, socket, user);
         logout();
       }
     };
@@ -44,7 +44,7 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [socket]); // Depend on socket to ensure we always have the latest instance
+  }, [socket, user]); // Depend on socket to ensure we always have the latest instance
 
   return (
     <SidebarProvider>

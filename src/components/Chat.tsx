@@ -3,8 +3,8 @@ import { useSidebar } from './SidebarContext';
 import { useUser } from '../context/UserContext';
 import cat from '../assets/cat.png';
 import { Socket } from 'socket.io-client';
-import CryptoJS from 'crypto-js';
 import axios from 'axios';
+import { encryptMessage, decryptMessage, addSystemMessage } from '../utils';
 
 type Message = {
   id: number;
@@ -60,24 +60,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     fetchMessages();
   }, []); // Empty dependency array means this effect runs only once after the initial render
 
-  const secretKey = process.env.REACT_APP_SECRET_KEY;
-
-  const encryptMessage = (text: string) => {
-    if (!secretKey) {
-      console.error("Secret key is not set.");
-      return '';
-    }
-    return CryptoJS.AES.encrypt(text, secretKey).toString();
-  };
-
-  const decryptMessage = (cipherText: string) => {
-    if (!secretKey) {
-      console.error("Secret key is not set.");
-      return '';
-    }
-    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  };
 
   const handleSendMessage = async () => {
     if (!inputText.trim() || !socket || !user) return;
@@ -97,31 +79,13 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     }
   };
 
-  const addSystemMessage = (text: string): void => {
-    if (!socket || !user) return;
-    const encryptedMessage = encryptMessage(text);
-    const systemMessage = {
-      text: encryptedMessage,
-      googleId: messages.length,    // Useless to systemMessage but a required param
-      username: user.name,          // Useless to systemMessage but a required param
-      profilePicUrl: user.picture,  // Useless to systemMessage but a required param
-      from: 'system',
-      timestamp: Date.now()
-    };
-    socket.emit('data', systemMessage);
-  };
-
   useEffect(() => {
     if (!socket) return;
 
     socket.on('userConnected', (data) => {
-      if(data.googleId === user?.id) {
-        addSystemMessage(`${data.username} has joined the chat`);
+      if(user && data.googleId === user.id) {
+        addSystemMessage(`${data.username} has joined the chat`, socket, user);
       }
-    });
-
-    socket.on('userDisconnected', (data) => {
-      addSystemMessage(`${data.username} has left the chat`);
     });
 
     socket.on('data', (data: MessageData) => {
