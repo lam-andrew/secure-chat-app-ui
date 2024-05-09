@@ -36,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
     };
   
     fetchUsers();
-  }, []); // Empty dependency array means this effect runs only once after the initial render
+  }, [users]); // Empty dependency array means this effect runs only once after the initial render
 
   useEffect(() => {
     if (!socket || !user) return;
@@ -65,6 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
     // Handle user disconnected event
     socket.on('userDisconnected', (data) => {
       setUsers((prevUsers) => prevUsers.filter((user) => user.googleId !== data.googleId));
+      console.log(data, "LEFT")
     });
 
     return () => {
