@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex justify-center items-center h-screen w-full bg-slate-50">
             <div className='bg-slate-100 shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4 max-w-md w-full'>
-                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log Into Ekko</h1>
+                <h1 className='text-3xl font-semibold text-center text-slate-800 mb-8'>Log In to Ekko</h1>
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>

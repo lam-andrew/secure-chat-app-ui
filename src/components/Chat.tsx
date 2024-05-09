@@ -14,6 +14,7 @@ type Message = {
   googleId?: string;
   username?: string;
   profilePicUrl?: string;
+  timestamp: number;
 };
 
 type MessageData = {
@@ -23,6 +24,7 @@ type MessageData = {
   username: string;
   profilePicUrl: string;
   from: 'user' | 'system';
+  timestamp: number;
 }
 
 type ChatProps = {
@@ -85,7 +87,8 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
       googleId: user.id,
       username: user.name,
       profilePicUrl: user.picture,
-      from: 'user'
+      from: 'user',
+      timestamp: Date.now()
     };
     socket.emit('data', messageData);
     setInputText('');
@@ -102,7 +105,8 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
       googleId: messages.length,    // Useless to systemMessage but a required param
       username: user.name,          // Useless to systemMessage but a required param
       profilePicUrl: user.picture,  // Useless to systemMessage but a required param
-      from: 'system'
+      from: 'system',
+      timestamp: Date.now()
     };
     socket.emit('data', systemMessage);
   };
@@ -111,8 +115,6 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
     if (!socket) return;
 
     socket.on('userConnected', (data) => {
-      console.log(data.googleId)
-      console.log(user?.id)
       if(data.googleId === user?.id) {
         addSystemMessage(`${data.username} has joined the chat`);
       }
@@ -132,6 +134,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
         googleId: data.googleId,
         username: data.username,
         profilePicUrl: data.profilePicUrl,
+        timestamp: data.timestamp,
       };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
@@ -167,7 +170,7 @@ const Chat: React.FC<ChatProps> = ({ className, socket }) => {
   return (
     <div className={`mt-16 flex flex-col ${isSidebarOpen ? 'lg:w-5/6 md:w-3/4 sm:w-full' : 'w-full'}`}>
       <div className="flex flex-col-reverse flex-grow overflow-y-auto p-4 space-y-2 space-y-reverse scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900 scroll-smooth">
-        {messages.slice().reverse().map((message, index) => (
+        {messages.slice().sort((a, b) => b.timestamp - a.timestamp).map((message, index) => (
           <div
             key={index}
             className={`rounded p-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl break-words ${message.from === 'system' ? 'text-gray-500 mx-auto' : 'text-white'} ${message.from === 'system' ? '' : (message.googleId === user?.id ? 'bg-[#6d84f7] ml-auto' : 'bg-slate-700 mr-auto')}`}
