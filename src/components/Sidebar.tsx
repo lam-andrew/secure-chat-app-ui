@@ -18,36 +18,35 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
   const [users, setUsers] = useState<UserCardProfile[]>([]);
   const { user } = useUser();
 
+  // Function to fetch user data from the server
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users`);
+      const data = response.data; // Axios automatically handles the JSON parsing
+      // Transform the data into the format expected by the UserCardProfile
+      const userProfiles = data.map((user: any) => ({
+        name: user.username,
+        picture: user.profilePicUrl,
+        googleId: user.googleId
+      }));
+      setUsers(userProfiles);
+    } catch (error) {
+      console.error('Failed to fetch users', error);
+    }
+  };
+
   useEffect(() => {
-    // Function to fetch user data from the server
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users`);
-        const data = response.data; // Axios automatically handles the JSON parsing
-        // Transform the data into the format expected by the UserCardProfile
-        const userProfiles = data.map((user: any) => ({
-          name: user.username,
-          picture: user.profilePicUrl
-        }));
-        setUsers(userProfiles);
-      } catch (error) {
-        console.error('Failed to fetch users', error);
-      }
-    };
-  
     fetchUsers();
-  }, [users]); // Empty dependency array means this effect runs only once after the initial render
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   useEffect(() => {
     if (!socket || !user) return;
 
-    if (user) {
-      socket?.emit('register', {
-        googleId: user.id,
-        username: user.name,
-        profilePicUrl: user.picture
-      });
-    }
+    socket.emit('register', {
+      googleId: user.id,
+      username: user.name,
+      profilePicUrl: user.picture
+    });
 
     // Handle user connected event
     socket.on('userConnected', (data) => {
@@ -65,16 +64,13 @@ const Sidebar: React.FC<SidebarProps> = ({ socket }) => {
     // Handle user disconnected event
     socket.on('userDisconnected', (data) => {
       setUsers((prevUsers) => prevUsers.filter((user) => user.googleId !== data.googleId));
-      console.log(data, "LEFT")
     });
 
     return () => {
-      if (socket) {
-        socket.disconnect();
-        socket.off('userConnected');
-      }
+      socket.disconnect();
+      socket.off('userConnected');
     };
-  }, [socket]);
+  }, [socket, user]);
 
 
   useEffect(() => {
