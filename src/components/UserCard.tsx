@@ -19,8 +19,8 @@ const UserCard: React.FC<UserCardProps> = ({ username, profilePicture, status, d
         alt={`${username}'s profile`}
         className="h-12 w-12 rounded-full object-cover mr-3 bg-white"
       />
-      <div className="flex flex-col ml-2">
-        <span className="font-bold text-white">{username}</span>
+      <div className="flex flex-col ml-2 flex-1 min-w-0">
+        <span className="font-bold text-white truncate"title={username}>{username}</span>
         {status && <span className={`text-sm ${status === 'active' ? 'text-green-500' : 'text-gray-400'} flex items-center`}>
           <img
             src={circle}

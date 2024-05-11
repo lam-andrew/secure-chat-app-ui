@@ -49,24 +49,6 @@ const LoginPage: React.FC = () => {
         navigate("/chat");
     };
 
-
-    const anonymous = () => {
-        const anonId = uuidv4();
-        const newAnonUser = {
-            email: "",
-            family_name: "",
-            given_name: "",
-            id: anonId,
-            locale: "en",
-            name: "Anonymous",
-            picture: cat,
-            verified_email: true
-        }
-
-        setUser(newAnonUser);
-        navigate("/chat");
-    };
-
     useEffect(
         () => {
             if (tempUser) {
@@ -126,24 +108,6 @@ const LoginPage: React.FC = () => {
                                 <img src={person} alt="person" className="h-6 w-6" />
                             </span>
                             Log in as Guest
-                        </button>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                anonymous();
-                            }}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-slate-800 bg-slate-200 hover:bg-slate-300"
-                        >
-                            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                <img
-                                    src={person}
-                                    alt="person"
-                                    className="h-6 w-6"
-                                />
-                            </span>
-                            Continue as Anonymous
                         </button>
                     </div>
                 </div>
