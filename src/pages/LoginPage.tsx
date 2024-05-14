@@ -81,7 +81,7 @@ const LoginPage: React.FC = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
-                        <a className="text-xs text-center text-slate-500 uppercase dark:text-slate-400 hover:underline">Chat with others</a>
+                        <a className="text-xs text-center text-slate-500 uppercase dark:text-slate-400">Chat with others</a>
                         <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
                     </div>
                     <button
