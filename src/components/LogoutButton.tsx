@@ -1,12 +1,21 @@
 import React from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { addSystemMessage } from '../utils';
+import { Socket } from 'socket.io-client';
 
-const LogoutButton: React.FC = () => {
-    const { logout } = useUser();
+type LogoutButtonProps = {
+    socket?: Socket;
+  };
+
+  const LogoutButton: React.FC<LogoutButtonProps> = ({ socket }) => {
+    const { logout, user } = useUser();
     const navigate = useNavigate();
 
     const handleLogout = () => {
+        if (socket && user) {
+            addSystemMessage(`${user?.name} has left the chat`, socket, user)
+        }
         logout();
         navigate('/');
     };

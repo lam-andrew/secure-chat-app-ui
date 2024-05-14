@@ -58,7 +58,7 @@ const MainPage: React.FC<{ isSidebarOpen: boolean }> = ({ isSidebarOpen }) => {
   return (
     <SidebarProvider>
       <div className="flex h-screen p-4 bg-slate-900">
-        <ProfileTopBar/>
+        <ProfileTopBar socket={socket}/>
         <Sidebar socket={socket}/>
         <Chat className={`${isSidebarOpen ? 'md:w-3/4 lg:w-3/4' : 'w-full'}`} socket={socket} />
       </div>

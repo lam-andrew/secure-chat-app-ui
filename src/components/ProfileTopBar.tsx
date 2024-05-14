@@ -1,8 +1,13 @@
 import React from 'react';
 import { useUser } from '../context/UserContext';
 import LogoutButton from './LogoutButton';
+import { Socket } from 'socket.io-client';
 
-const ProfileTopBar: React.FC = () => {
+type ProfileTopBarProps = {
+  socket?: Socket;
+};
+
+const ProfileTopBar: React.FC<ProfileTopBarProps> = ({ socket }) => {
   const { user } = useUser();
 
   return (
@@ -20,7 +25,7 @@ const ProfileTopBar: React.FC = () => {
             <p className="font-semibold text-sm">{user.name}</p>
             <p className="text-xs text-gray-400">{user.email}</p>
           </div>
-          <LogoutButton />
+          <LogoutButton socket={socket}/>
         </div>
       ) : (
         <div>No user profile data available</div>
